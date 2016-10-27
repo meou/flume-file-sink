@@ -46,12 +46,12 @@ public class TextFileSink extends AbstractSink implements Configurable {
   @Override
   public void start() {
     super.start();
-    logger.info("TextFileSink started");
+    logger.info("TextFileSink start.");
   }
 
   @Override
   public void stop() {
-    logger.info("TextFileSink started");
+    logger.info("TextFileSink stop.");
     super.stop();    
   }
 
