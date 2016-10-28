@@ -49,7 +49,7 @@ public class TestTextFileSink {
     sink = new TextFileSink();
 
     Context context = new Context();
-    context.put("filename", "target/testTextFileSink.log");
+    context.put("filename", "target/testNormal.log");
 
     Channel channel = new PseudoTxnMemoryChannel();
 
@@ -82,7 +82,7 @@ public class TestTextFileSink {
     sink.stop();
 
     BufferedReader br = new BufferedReader(
-      new FileReader("target/testTextFileSink.log"));
+      new FileReader("target/testNormal.log"));
     String line = null;
     int i = 0;
     while ((line = br.readLine()) != null) {
@@ -91,6 +91,70 @@ public class TestTextFileSink {
       }
       assertTrue(line.equals(answer.get(i)));
       i++;
+    }
+  }
+
+  @Test
+  public void testDelimiter()
+    throws EventDeliveryException, FileNotFoundException, IOException {
+    sink = new TextFileSink();
+
+    Context context = new Context();
+    context.put("filename", "target/testDelimiter.log");
+    context.put("delimiter", ",");
+
+    Channel channel = new PseudoTxnMemoryChannel();
+
+    Configurables.configure(channel, context);
+    Configurables.configure(sink, context);
+    sink.setChannel(channel);
+
+    sink.start();
+    SimpleEvent event = new SimpleEvent();
+    Map<String, String> eventHeaders = new HashMap<>();
+    eventHeaders.put("k","v");
+    event.setHeaders(eventHeaders);
+    event.setBody("".getBytes());
+    channel.put(event);
+    sink.process();
+    sink.stop();
+
+    BufferedReader br = new BufferedReader(
+      new FileReader("target/testDelimiter.log"));
+    String line = br.readLine();
+    assertTrue(line.equals("k,v"));
+  }
+
+  @Test
+  public void testNoHeader()
+    throws EventDeliveryException, FileNotFoundException, IOException {
+    sink = new TextFileSink();
+
+    Context context = new Context();
+    context.put("filename", "target/testNoHeader.log");
+    context.put("headerIncluded", "false");
+
+    Channel channel = new PseudoTxnMemoryChannel();
+
+    Configurables.configure(channel, context);
+    Configurables.configure(sink, context);
+    sink.setChannel(channel);
+
+    sink.start();
+    SimpleEvent event = new SimpleEvent();
+    Map<String, String> eventHeaders = new HashMap<>();
+    eventHeaders.put("k","v");
+    event.setHeaders(eventHeaders);
+    event.setBody("".getBytes());
+    channel.put(event);
+    sink.process();
+    sink.stop();
+
+    BufferedReader br = new BufferedReader(
+      new FileReader("target/testNoHeader.log"));
+    String line = null;
+    while ((line = br.readLine()) != null) {
+      assertTrue(line.length() == 0);
     }
   }
 

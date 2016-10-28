@@ -36,11 +36,19 @@ public class TextFileSink extends AbstractSink implements Configurable {
 
   private static final Logger logger = LoggerFactory.getLogger(TextFileSink.class);
   private static final String DEFAULT_FILENAME = "/tmp/TextFileSink.log";
+  private static final String DEFAULT_DELIMITER = ":";
+  private static final Boolean DEFAULT_HEADER_INCLUDED = Boolean.TRUE;
   private static String filename = null;
+  private static String delimiter = null;
+  private static Boolean headerIncluded = null;
 
   public void configure(Context context) {
     filename = context.getString("filename",DEFAULT_FILENAME);
+    delimiter = context.getString("delimiter", DEFAULT_DELIMITER);
+    headerIncluded = context.getBoolean("headerIncluded", DEFAULT_HEADER_INCLUDED);
     logger.debug("filename="+filename);
+    logger.debug("delimiter="+delimiter);
+    logger.debug("headerIncluded="+headerIncluded);
   }
 
   @Override
@@ -64,19 +72,21 @@ public class TextFileSink extends AbstractSink implements Configurable {
       transaction.begin();
       Event event = channel.take();
       if (event != null) {
-        String body = new String(event.getBody());
-        Map<String, String> headers = event.getHeaders();
         BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true));
         StringBuffer sb = new StringBuffer();
 
-        if ((headers == null) || headers.isEmpty()) {
-          logger.debug("Event headers empty.");
-        } else {
-          for (Map.Entry<String, String> entry: headers.entrySet()) {
-            sb.append(entry.getKey() + ":" + entry.getValue() + "\n");
+        if (headerIncluded) {
+          Map<String, String> headers = event.getHeaders();
+          if ((headers == null) || headers.isEmpty()) {
+            logger.debug("Event headers empty.");
+          } else {
+            for (Map.Entry<String, String> entry: headers.entrySet()) {
+              sb.append(entry.getKey() + delimiter + entry.getValue() + "\n");
+            }
+            sb.append("\n");
           }
-          sb.append("\n");
         }
+        String body = new String(event.getBody());
         if ((body == null) || (body.length() == 0)) {
           logger.debug("Event body empty.");
         } else {
