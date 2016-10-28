@@ -1,5 +1,7 @@
 # flume-file-sink
 
+[![Build Status](https://api.travis-ci.org/meou/flume-file-sink.svg?branch=master)](https://api.travis-ci.org/meou/flume-file-sink)
+
 **File Sinks Implementation for Apache Flume.**
 
 ***TextFileSink***
