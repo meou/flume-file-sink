@@ -22,7 +22,7 @@ limitations under the License.
 
   <groupId>org.meou.flume.sink.file</groupId>
   <artifactId>flume-file-sink</artifactId>
-  <version>0.0.1</version>
+  <version>0.1.0</version>
   <name>Flume File Sink</name>
 
   <build>
